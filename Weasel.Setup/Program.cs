@@ -1,0 +1,191 @@
+﻿using Microsoft.Win32;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Security.Principal;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace Weasel.Setup
+{
+    internal static class Program
+    {
+        private static bool IsRunAsAdmin()
+        {
+            var identity = WindowsIdentity.GetCurrent();
+            var principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
+        private static void RunAsAdmin(string arg)
+        {
+            var info = new ProcessStartInfo
+            {
+                FileName = Application.ExecutablePath,
+                Arguments = arg,
+                Verb = "RunAs",
+                UseShellExecute = true,
+            };
+            Process.Start(info);
+        }
+
+        /// <summary>
+        /// 应用程序的主入口点。
+        /// </summary>
+        [STAThread]
+        static void Main(string[] args)
+        {
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            if (args.Length <= 0) return;
+            Run(args[0]);
+        }
+
+        private static readonly string WEASEL_PROG_REG_KEY = @"SOFTWARE\Rime\Weasel";
+        private static readonly string WEASEL_UPDATE_REG_KEY = $@"{WEASEL_PROG_REG_KEY}\Updates";
+
+        private static void Run(string arg)
+        {
+            if (string.IsNullOrEmpty(arg)) return;
+            try
+            {
+                if (arg.StartsWith("/userdir:")) // 设置用户目录
+                {
+                    var dir = arg.Substring(arg.IndexOf(':') + 1);
+                    if (!string.IsNullOrEmpty(arg))
+                    {
+                        Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "RimeUserDir", dir);
+                    }
+                }
+                else
+                {
+                    switch (arg) // 无需管理员权限的操作
+                    {
+                        case "/ls": // 简体中文
+                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Language", "chs");
+                            break;
+                        case "/lt": // 繁体中文
+                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Language", "cht");
+                            break;
+                        case "/le": // 英语
+                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Language", "eng");
+                            break;
+                        case "/eu": // 启用更新
+                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_UPDATE_REG_KEY, "CheckForUpdates", 1);
+                            break;
+                        case "/du": // 禁用更新
+                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_UPDATE_REG_KEY, "CheckForUpdates", 0);
+                            break;
+                        case "/toggleime":
+                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "ToggleImeOnOpenClose", 1);
+                            break;
+                        case "/toggleascii":
+                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "ToggleImeOnOpenClose", 0);
+                            break;
+                        case "/testing": // 测试通道
+                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "UpdateChannel", "testing");
+                            break;
+                        case "/release": // 正式通道
+                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "UpdateChannel", "release");
+                            break;
+                        default: // 需要管理员权限的操作
+                            if (!IsRunAsAdmin())
+                            {
+                                RunAsAdmin(arg);
+                                Application.Exit();
+                                break;
+                            }
+                            switch (arg)
+                            {
+                                case "/u": // 卸载
+                                    Setup.Uninstall(true);
+                                    break;
+                                case "/s": // 简体中文安装
+                                    Setup.NormalInstall(false);
+                                    break;
+                                case "/t": // 繁体中文安装
+                                    Setup.NormalInstall(true);
+                                    break;
+                                default:   // 自定义安装
+                                    CustomInstall(arg == "/i");
+                                    break;
+                            }
+                            break;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                MessageBox.Show(ex.StackTrace);
+            }
+        }
+
+        private static async void CustomInstall(bool isInstalling)
+        {
+            var isSilentMode = isInstalling;
+            var isInstalled = Setup.IsWeaselInstalled;
+
+            var isHant = Convert.ToBoolean(
+                Utils.Reg.GetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Hant", 0)
+            );
+            var userDir = Convert.ToString(
+                Utils.Reg.GetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "RimeUserDir", string.Empty)
+            );
+
+            if (!isSilentMode)
+            {
+                var dialog = new InstallOptionDialog
+                {
+                    IsInstalled = isInstalled,
+                    IsHant = isHant,
+                    UserDir = userDir
+                };
+                if (DialogResult.OK == dialog.ShowDialog())
+                {
+                    isInstalled = dialog.IsInstalled;
+                    isHant = dialog.IsHant;
+                    userDir = dialog.UserDir;
+
+                    Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "RimeUserDir", userDir);
+                    Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Hant", isHant ? 1 : 0);
+                }
+                else
+                {
+                    if (!isInstalling) Application.Exit();
+                }
+            }
+            if (!isInstalled)
+            {
+                Setup.NormalInstall(isHant, isSilentMode);
+            }
+            else
+            {
+                var installDir = Path.GetDirectoryName(Application.ExecutablePath); ;
+                await Task.Run(() =>
+                {
+                    ExecProcess(Path.Combine(installDir, "WeaselServer.exe"), "/q");
+                    Task.Delay(500);
+
+                    ExecProcess(Path.Combine(installDir, "WeaselServer.exe"), string.Empty);
+                    Task.Delay(500);
+
+                    ExecProcess(Path.Combine(installDir, "WeaselDeployer.exe"), "/deploy");
+                });
+            }
+        }
+
+        private static void ExecProcess(string path, string args)
+        {
+            var info = new ProcessStartInfo
+            {
+                FileName = path,
+                WorkingDirectory = Path.GetDirectoryName(path),
+                Arguments = args,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Normal,
+            };
+            Process.Start(info);
+        }
+    }
+}
