@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace Weasel.Setup
 {
-    internal static class Program
+    internal class Program
     {
         private static bool IsRunAsAdmin()
         {
@@ -126,7 +126,7 @@ namespace Weasel.Setup
             }
         }
 
-        private static async void CustomInstall(bool isInstalling)
+        private static void CustomInstall(bool isInstalling)
         {
             var isSilentMode = isInstalling;
             var isInstalled = Setup.IsWeaselInstalled;
@@ -171,7 +171,7 @@ namespace Weasel.Setup
             else
             {
                 var installDir = Path.GetDirectoryName(Application.ExecutablePath); ;
-                await Task.Run(() =>
+                Task.Run(() =>
                 {
                     ExecProcess(Path.Combine(installDir, "WeaselServer.exe"), "/q");
                     Task.Delay(500);
@@ -190,7 +190,6 @@ namespace Weasel.Setup
             var info = new ProcessStartInfo
             {
                 FileName = path,
-                WorkingDirectory = Path.GetDirectoryName(path),
                 Arguments = args,
                 CreateNoWindow = true,
                 WindowStyle = ProcessWindowStyle.Normal,
