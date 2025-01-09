@@ -26,7 +26,7 @@ namespace Weasel.Setup
             customPathBox.Text = UserDir;
 
             if (IsInstalled) {
-                confirmButton.Text = "Modify folder";
+                confirmButton.Text = Localization.Resources.STR_OK;
             }
             removeButton.Enabled = IsInstalled;
         }
@@ -75,7 +75,7 @@ namespace Weasel.Setup
         {
             Setup.Uninstall(false);
             IsInstalled = false;
-            confirmButton.Text = "Install";
+            confirmButton.Text = Localization.Resources.STR_INSTALL;
             inputLangGroup.Enabled = !IsInstalled;
             removeButton.Enabled = IsInstalled;
         }

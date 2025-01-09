@@ -8,6 +8,49 @@ namespace Weasel.Setup
 {
     internal class Utils
     {
+        public static class App
+        {
+            public static CultureInfo CultureInfo
+            {
+                get
+                {
+                    var lang = (string)Registry.CurrentUser.GetValue(@"Software\Rime\Weasel\Language", string.Empty);
+                    if (!string.IsNullOrEmpty(lang))
+                    {
+                        switch (lang)
+                        {
+                            case "chs":
+                                return new CultureInfo("zh-Hans");
+                            case "cht":
+                                return new CultureInfo("zh-Hant");
+                            default:
+                                return new CultureInfo("en-US");
+                        }
+                    }
+                    else
+                    {
+                        var current = Thread.CurrentThread.CurrentUICulture.Name;
+                        if (current.StartsWith("zh"))
+                        {
+                            if (current.EndsWith("HK") || current.EndsWith("MO") ||
+                                current.EndsWith("TW") || current.EndsWith("Hant"))
+                            {
+                                return new CultureInfo("zh-Hant");
+                            }
+                            else
+                            {
+                                return new CultureInfo("zh-Hans");
+                            }
+                        }
+                        else
+                        {
+                            return new CultureInfo("en-US");
+                        }
+                    }
+                }
+            }
+        }
+
         public static class Reg
         {
             public static void SetValue(RegistryKey baseKey, string subKeyName, string valueName, object value)
