@@ -157,4 +157,7 @@
   <data name="$this.Text" xml:space="preserve">
     <value>【小狼毫】配置选项</value>
   </data>
+  <data name="selectButton.Text" xml:space="preserve">
+    <value>选择</value>
+  </data>
 </root>

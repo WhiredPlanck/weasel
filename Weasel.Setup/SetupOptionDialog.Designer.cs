@@ -33,6 +33,7 @@
             this.chtRadio = new System.Windows.Forms.RadioButton();
             this.chsRadio = new System.Windows.Forms.RadioButton();
             this.userFolderGroup = new System.Windows.Forms.GroupBox();
+            this.selectButton = new System.Windows.Forms.Button();
             this.customPathBox = new System.Windows.Forms.TextBox();
             this.customFolderRadio = new System.Windows.Forms.RadioButton();
             this.defaultFolderRadio = new System.Windows.Forms.RadioButton();
@@ -66,12 +67,20 @@
             // 
             // userFolderGroup
             // 
+            this.userFolderGroup.Controls.Add(this.selectButton);
             this.userFolderGroup.Controls.Add(this.customPathBox);
             this.userFolderGroup.Controls.Add(this.customFolderRadio);
             this.userFolderGroup.Controls.Add(this.defaultFolderRadio);
             resources.ApplyResources(this.userFolderGroup, "userFolderGroup");
             this.userFolderGroup.Name = "userFolderGroup";
             this.userFolderGroup.TabStop = false;
+            // 
+            // selectButton
+            // 
+            resources.ApplyResources(this.selectButton, "selectButton");
+            this.selectButton.Name = "selectButton";
+            this.selectButton.UseVisualStyleBackColor = true;
+            this.selectButton.Click += new System.EventHandler(this.SelectButton_Click);
             // 
             // customPathBox
             // 
@@ -141,6 +150,7 @@
         private System.Windows.Forms.Button confirmButton;
         private System.Windows.Forms.Button removeButton;
         private System.Windows.Forms.TextBox customPathBox;
+        private System.Windows.Forms.Button selectButton;
     }
 }
 

@@ -36,6 +36,7 @@ namespace Weasel.Setup
             if (defaultFolderRadio.Checked)
             {
                 customPathBox.Text = string.Empty;
+                customPathBox.Enabled = false;
             }
         }
 
@@ -43,17 +44,7 @@ namespace Weasel.Setup
         {
             if (customFolderRadio.Checked)
             {
-                var folderDialog = new FolderBrowserDialog();
-                var customPath = customPathBox.Text;
-                if (!string.IsNullOrEmpty(customPath))
-                {
-                    folderDialog.SelectedPath = customPath;
-                }
-                if (DialogResult.OK == folderDialog.ShowDialog())
-                {
-                    customPathBox.Text = folderDialog.SelectedPath;
-                }
-                confirmButton.Focus();
+                customPathBox.Enabled = true;
             }
         }
 
@@ -69,6 +60,21 @@ namespace Weasel.Setup
             }
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        private void SelectButton_Click(object sender, System.EventArgs e)
+        {
+            var folderDialog = new FolderBrowserDialog();
+            var customPath = customPathBox.Text;
+            if (!string.IsNullOrEmpty(customPath))
+            {
+                folderDialog.SelectedPath = customPath;
+            }
+            if (DialogResult.OK == folderDialog.ShowDialog())
+            {
+                customPathBox.Text = folderDialog.SelectedPath;
+            }
+            confirmButton.Focus();
         }
 
         private void RemoveButton_Click(object sender, System.EventArgs e)
