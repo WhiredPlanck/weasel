@@ -1,9 +1,8 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Globalization;
 using System.IO;
-using System.Security.Cryptography;
-using System.Windows.Forms;
-using TSF.InteropTypes;
+using System.Threading;
 
 namespace Weasel.Setup
 {
@@ -52,21 +51,23 @@ namespace Weasel.Setup
                 {
                     File.Copy(src, dest, true);
                 }
-                finally
+                catch
                 {
-                    if (!File.Exists(dest))
+                    for (int i = 0; i < 10; i++)
                     {
-                        var i = 0;
-                        while (i < dest.Length)
+                        var old = $"{dest}.old.{i}";
+                        if (PInvoke.IO.MoveFileEx(dest, old, PInvoke.IO.MoveFileFlags.MOVEFILE_REPLACE_EXISTING))
                         {
-                            var old = $"{dest}.old.{i}";
-                            if (PInvoke.IO.MoveFileEx(dest, old, PInvoke.IO.MoveFileFlags.MOVEFILE_REPLACE_EXISTING))
-                            {
-                                PInvoke.IO.MoveFileEx(old, null, PInvoke.IO.MoveFileFlags.MOVEFILE_DELAY_UNTIL_REBOOT);
-                                break;
-                            }
+                            PInvoke.IO.MoveFileEx(old, null, PInvoke.IO.MoveFileFlags.MOVEFILE_DELAY_UNTIL_REBOOT);
+                            break;
                         }
+                    }
+                    try
+                    {
                         File.Copy(src, dest, true);
+                    }
+                    catch
+                    {
                     }
                 }
             }
@@ -77,19 +78,15 @@ namespace Weasel.Setup
                 {
                     File.Delete(path);
                 }
-                finally
+                catch
                 {
-                    if (File.Exists(path))
+                    for (int i = 0; i < 10; i++)
                     {
-                        var i = 0;
-                        while (i < path.Length)
+                        var old = $"{path}.old.{i}";
+                        if (PInvoke.IO.MoveFileEx(path, old, PInvoke.IO.MoveFileFlags.MOVEFILE_REPLACE_EXISTING))
                         {
-                            var old = $"{path}.old.{i}";
-                            if (PInvoke.IO.MoveFileEx(path, old, PInvoke.IO.MoveFileFlags.MOVEFILE_REPLACE_EXISTING))
-                            {
-                                PInvoke.IO.MoveFileEx(old, null, PInvoke.IO.MoveFileFlags.MOVEFILE_DELAY_UNTIL_REBOOT);
-                                break;
-                            }
+                            PInvoke.IO.MoveFileEx(old, null, PInvoke.IO.MoveFileFlags.MOVEFILE_DELAY_UNTIL_REBOOT);
+                            return;
                         }
                     }
                 }

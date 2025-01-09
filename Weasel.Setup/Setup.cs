@@ -43,8 +43,7 @@ namespace Weasel.Setup
             {
                 var sys32Dir = Environment.GetFolderPath(Environment.SpecialFolder.System);
                 var weaselPath = Path.Combine(sys32Dir, "weasel.dll");
-                var attr = File.GetAttributes(weaselPath);
-                return File.Exists(weaselPath) && !attr.HasFlag(FileAttributes.Directory);
+                return File.Exists(weaselPath);
             }
         }
 
@@ -141,8 +140,11 @@ namespace Weasel.Setup
                         // 如果支持 ARM32 子系统，则安装 ARM32 版本（Windows 11 24H2 之前）
                         var arm32SrcPath = srcPath.Insert(srcPath.LastIndexOf('.'), "ARM");
                         var arm32DestPath = Path.Combine(sysarm32Dir, baseName);
-                        Utils.IO.CopyFile(arm32SrcPath, arm32DestPath);
-                        updateService(arm32SrcPath);
+                        if (File.Exists(arm32SrcPath))
+                        {
+                            Utils.IO.CopyFile(arm32SrcPath, arm32DestPath);
+                            updateService(arm32SrcPath);
+                        }
                     }
 
                     // 安装 ARM64（和 x64）版本库。
@@ -151,32 +153,43 @@ namespace Weasel.Setup
                     // 所以这三个库都要安装
                     var x64SrcPath = srcPath.Insert(srcPath.LastIndexOf('.'), "x64");
                     var x64DestPath = destPath.Insert(srcPath.LastIndexOf('.'), "x64");
-                    Utils.IO.CopyFile(x64SrcPath, x64DestPath);
+                    if (File.Exists(x64SrcPath)) Utils.IO.CopyFile(x64SrcPath, x64DestPath);
 
                     var arm64SrcPath = srcPath.Insert(srcPath.LastIndexOf('.'), "x64");
                     var arm64DestPath = destPath.Insert(srcPath.LastIndexOf('.'), "x64");
-                    Utils.IO.CopyFile(arm64SrcPath, arm64DestPath);
+                    if (File.Exists(arm64SrcPath)) Utils.IO.CopyFile(arm64SrcPath, arm64DestPath);
 
                     // ARM64X 充当重定向器（转发器），因此我们不必区分其简繁变体
                     var arm64xSrcPath = srcPath.Insert(srcPath.LastIndexOf('.'), "ARM64X");
-                    Utils.IO.CopyFile(arm64xSrcPath, destPath);
-                    updateService(destPath);
+                    if (File.Exists(arm64xSrcPath))
+                    {
+                        Utils.IO.CopyFile(arm64xSrcPath, destPath);
+                        updateService(destPath);
+                    }
                 }
                 else
                 {
                     var sysWow64Dir = Environment.GetFolderPath(Environment.SpecialFolder.SystemX86);
                     var wow64DestPath = Path.Combine(sysWow64Dir, baseName);
-                    Utils.IO.CopyFile(srcPath, wow64DestPath);
-                    updateService(wow64DestPath);
+                    if (File.Exists(srcPath))
+                    {
+                        Utils.IO.CopyFile(srcPath, wow64DestPath);
+                        updateService(wow64DestPath);
+                    }
                     var x64SrcPath = srcPath.Insert(srcPath.LastIndexOf('.'), "x64");
-                    Utils.IO.CopyFile(x64SrcPath, destPath);
-                    updateService(destPath);
+                    if (File.Exists(x64SrcPath))
+                    {
+                        Utils.IO.CopyFile(x64SrcPath, destPath);
+                        updateService(destPath);
+                    }
                 }
             }
             else
             {
-                File.Copy(srcPath, destPath, true);
-                updateService(destPath);
+                if (File.Exists(srcPath)) {
+                    File.Copy(srcPath, destPath, true);
+                    updateService(destPath);
+                }
             }
         }
 

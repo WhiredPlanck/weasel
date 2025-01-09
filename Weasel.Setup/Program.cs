@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -37,8 +38,7 @@ namespace Weasel.Setup
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            if (args.Length <= 0) return;
-            Run(args[0]);
+            Run(string.Join(" ", args));
         }
 
         private static readonly string WEASEL_PROG_REG_KEY = @"SOFTWARE\Rime\Weasel";
@@ -46,7 +46,6 @@ namespace Weasel.Setup
 
         private static void Run(string arg)
         {
-            if (string.IsNullOrEmpty(arg)) return;
             try
             {
                 if (arg.StartsWith("/userdir:")) // 设置用户目录
@@ -56,6 +55,7 @@ namespace Weasel.Setup
                     {
                         Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "RimeUserDir", dir);
                     }
+                    return;
                 }
                 else
                 {
@@ -63,56 +63,57 @@ namespace Weasel.Setup
                     {
                         case "/ls": // 简体中文
                             Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Language", "chs");
-                            break;
+                            return;
                         case "/lt": // 繁体中文
                             Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Language", "cht");
-                            break;
+                            return;
                         case "/le": // 英语
                             Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Language", "eng");
-                            break;
+                            return;
                         case "/eu": // 启用更新
                             Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_UPDATE_REG_KEY, "CheckForUpdates", 1);
-                            break;
+                            return;
                         case "/du": // 禁用更新
                             Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_UPDATE_REG_KEY, "CheckForUpdates", 0);
-                            break;
+                            return;
                         case "/toggleime":
                             Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "ToggleImeOnOpenClose", 1);
-                            break;
+                            return;
                         case "/toggleascii":
                             Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "ToggleImeOnOpenClose", 0);
-                            break;
+                            return;
                         case "/testing": // 测试通道
                             Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "UpdateChannel", "testing");
-                            break;
+                            return;
                         case "/release": // 正式通道
                             Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "UpdateChannel", "release");
-                            break;
+                            return;
                         default: // 需要管理员权限的操作
                             if (!IsRunAsAdmin())
                             {
                                 RunAsAdmin(arg);
                                 Application.Exit();
-                                break;
+                                return;
                             }
                             switch (arg)
                             {
                                 case "/u": // 卸载
                                     Setup.Uninstall(true);
-                                    break;
+                                    return;
                                 case "/s": // 简体中文安装
                                     Setup.NormalInstall(false);
-                                    break;
+                                    return;
                                 case "/t": // 繁体中文安装
                                     Setup.NormalInstall(true);
-                                    break;
-                                default:   // 自定义安装
-                                    CustomInstall(arg == "/i");
+                                    return;
+                                default:
                                     break;
                             }
                             break;
                     }
                 }
+                // 自定义安装
+                CustomInstall(arg == "/i");
             }
             catch (Exception ex)
             {
@@ -152,7 +153,11 @@ namespace Weasel.Setup
                 }
                 else
                 {
-                    if (!isInstalling) Application.Exit();
+                    if (!isInstalling)
+                    {
+                        Application.Exit();
+                        return;
+                    }
                 }
             }
             if (!isInstalled)
