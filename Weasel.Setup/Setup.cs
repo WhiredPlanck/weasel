@@ -84,7 +84,7 @@ namespace Weasel.Setup
 
             if (!isSilentMode)
             {
-                MessageBox.Show("安装成功");
+                MessageBox.Show(Localization.Resources.STR_INSTALL_SUCCESS);
             }
         }
 
@@ -117,7 +117,7 @@ namespace Weasel.Setup
 
             if (!isSilentMode)
             {
-                MessageBox.Show("卸载成功");
+                MessageBox.Show(Localization.Resources.STR_UNINSTALL_SUCCESS);
             }
         }
 
