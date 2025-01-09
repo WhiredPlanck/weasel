@@ -136,7 +136,7 @@ namespace Weasel.Setup
 
             if (!isSilentMode)
             {
-                var dialog = new InstallOptionDialog
+                var dialog = new SetupOptionDialog
                 {
                     IsInstalled = isInstalled,
                     IsHant = isHant,

@@ -53,17 +53,20 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="InstallOptionDialog.cs">
+    <Compile Include="SetupOptionDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="InstallOptionDialog.Designer.cs">
-      <DependentUpon>InstallOptionDialog.cs</DependentUpon>
+    <Compile Include="SetupOptionDialog.Designer.cs">
+      <DependentUpon>SetupOptionDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="PInvoke.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Setup.cs" />
     <Compile Include="Utils.cs" />
+    <EmbeddedResource Include="SetupOptionDialog.resx">
+      <DependentUpon>SetupOptionDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
