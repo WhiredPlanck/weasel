@@ -51,10 +51,6 @@ if is_arch("x64") or is_arch("x86") then
   includes("RimeWithWeasel", "WeaselIPCServer", "WeaselServer", "WeaselDeployer")
 end
 
-if is_arch("x86") then
-  includes("WeaselSetup")
-end
-
 if is_mode("debug") then
   includes("test/TestWeaselIPC")
   includes("test/TestResponseParser")
