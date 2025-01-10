@@ -39,6 +39,8 @@ namespace Weasel.Setup
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            Utils.App.SetProcessApiAwareness();
+
             var appCulture = Utils.App.CultureInfo;
             Thread.CurrentThread.CurrentCulture = appCulture;
             Thread.CurrentThread.CurrentUICulture = appCulture;

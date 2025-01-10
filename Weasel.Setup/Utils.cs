@@ -49,6 +49,14 @@ namespace Weasel.Setup
                     }
                 }
             }
+
+            public static void SetProcessApiAwareness()
+            {
+                if (Environment.OSVersion.Version >= new Version(6, 3, 9600)) // Windows 8.1
+                {
+                    PInvoke.HIDPI.SetProcessDpiAwareness(PInvoke.HIDPI.PROCESS_DPI_AWARENESS.PROCESS_PER_MONITOR_DPI_AWARE);
+                }
+            }
         }
 
         public static class Reg
