@@ -23,6 +23,7 @@ namespace Weasel.Setup
             defaultFolderRadio.Checked = string.IsNullOrEmpty(UserDir);
             customFolderRadio.Checked = !string.IsNullOrEmpty(UserDir);
             customPathBox.Enabled = !string.IsNullOrEmpty(UserDir);
+            selectButton.Enabled = !string.IsNullOrEmpty(UserDir);
             customPathBox.Text = UserDir;
 
             if (IsInstalled) {
@@ -37,6 +38,7 @@ namespace Weasel.Setup
             {
                 customPathBox.Text = string.Empty;
                 customPathBox.Enabled = false;
+                selectButton.Enabled= false;
             }
         }
 
@@ -45,6 +47,7 @@ namespace Weasel.Setup
             if (customFolderRadio.Checked)
             {
                 customPathBox.Enabled = true;
+                selectButton.Enabled = true;
             }
         }
 
