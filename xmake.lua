@@ -62,6 +62,7 @@ target("Weasel.Setup")
     local configs = {
       sln,
       "/t:" .. target_name,
+      "-restore",
       "/p:Configuration=" .. build_type,
       "/p:Platform=" .. platform
     }
