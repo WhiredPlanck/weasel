@@ -62,14 +62,8 @@ namespace Weasel.Setup
             Utils.Reg.SetValue(Registry.LocalMachine, WEASEL_PROG_REG_KEY, "ServerExecutable", WEASEL_SERVER_EXE);
 
             // 启用键盘布局和文本服务
-            if (isHant)
-            {
-                PInvoke.Input.InstallLayoutOrTip(PSZTITLE_HANT, 0);
-            }
-            else
-            {
-                PInvoke.Input.InstallLayoutOrTip(PSZTITLE_HANS, 0);
-            }
+            var psz = isHant ? PSZTITLE_HANT : PSZTITLE_HANS;
+            PInvoke.Input.InstallLayoutOrTip(psz, 0);
 
             // 收集用户模式转储
             // https://learn.microsoft.com/zh-cn/windows/win32/wer/collecting-user-mode-dumps
@@ -94,14 +88,8 @@ namespace Weasel.Setup
             var isHant = Convert.ToBoolean(
                 Utils.Reg.GetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Hant", 0)
             );
-            if (isHant)
-            {
-                PInvoke.Input.InstallLayoutOrTip(PSZTITLE_HANT, PInvoke.Input.ILOT.ILOT_UNINSTALL);
-            }
-            else
-            {
-                PInvoke.Input.InstallLayoutOrTip(PSZTITLE_HANS, PInvoke.Input.ILOT.ILOT_UNINSTALL);
-            }
+            var psz = isHant ? PSZTITLE_HANT : PSZTITLE_HANS;
+            PInvoke.Input.InstallLayoutOrTip(psz, PInvoke.Input.ILOT.ILOT_UNINSTALL);
 
             UninstallImeFiles("weasel.dll", (imePath) =>
             {
@@ -186,7 +174,8 @@ namespace Weasel.Setup
             }
             else
             {
-                if (File.Exists(srcPath)) {
+                if (File.Exists(srcPath))
+                {
                     File.Copy(srcPath, destPath, true);
                     updateService(destPath);
                 }
@@ -247,16 +236,10 @@ namespace Weasel.Setup
             if (!enable) UpdateProfile(false, isHant);
             var value = isHant ? "hant" : "hans";
             Environment.SetEnvironmentVariable("TEXTSERVICE_PROFILE", value);
-            string regsvr32Path;
             var sysarm32Dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "SysArm32");
-            if (Directory.Exists(sysarm32Dir))
-            {
-                regsvr32Path = Path.Combine(sysarm32Dir, "regsvr32.exe");
-            }
-            else
-            {
-                regsvr32Path = "regsvr32.exe";
-            }
+            var regsvr32Path = Directory.Exists(sysarm32Dir) 
+                ? Path.Combine(sysarm32Dir, "regsvr32.exe") 
+                : "regsvr32.exe";
             var args = enable ? $"/s \"{libPath}\"" : $"/s /u \"{libPath}\"";
             var updateInfo = new ProcessStartInfo
             {

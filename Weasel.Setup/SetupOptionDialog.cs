@@ -26,7 +26,8 @@ namespace Weasel.Setup
             selectButton.Enabled = !string.IsNullOrEmpty(UserDir);
             customPathBox.Text = UserDir;
 
-            if (IsInstalled) {
+            if (IsInstalled)
+            {
                 confirmButton.Text = Localization.Resources.STR_OK;
             }
             removeButton.Enabled = IsInstalled;
@@ -38,7 +39,7 @@ namespace Weasel.Setup
             {
                 customPathBox.Text = string.Empty;
                 customPathBox.Enabled = false;
-                selectButton.Enabled= false;
+                selectButton.Enabled = false;
             }
         }
 
@@ -54,13 +55,9 @@ namespace Weasel.Setup
         private void ConfirmButton_Click(object sender, System.EventArgs e)
         {
             IsHant = chtRadio.Checked;
-            if (customFolderRadio.Checked)
-            {
-                UserDir = customPathBox.Text;
-            } else
-            {
-                UserDir = string.Empty;
-            }
+            UserDir = customFolderRadio.Checked
+                ? customPathBox.Text
+                : string.Empty;
             DialogResult = DialogResult.OK;
             Close();
         }

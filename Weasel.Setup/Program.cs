@@ -58,7 +58,7 @@ namespace Weasel.Setup
                 if (arg.StartsWith("/userdir:")) // 设置用户目录
                 {
                     var dir = arg.Substring(arg.IndexOf(':') + 1);
-                    if (!string.IsNullOrEmpty(arg))
+                    if (dir != null)
                     {
                         Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "RimeUserDir", dir);
                     }
@@ -124,7 +124,7 @@ namespace Weasel.Setup
             }
             catch (Exception ex)
             {
-                MessageBox.Show(Localization.Resources.STR_ERROR, ex.Message);
+                MessageBox.Show(ex.Message, Localization.Resources.STR_ERROR);
             }
         }
 
