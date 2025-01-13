@@ -59,25 +59,6 @@ namespace Weasel.Setup
             }
         }
 
-        public static class Reg
-        {
-            public static void SetValue(RegistryKey baseKey, string subKeyName, string valueName, object value)
-            {
-                using (var reg = baseKey.CreateSubKey(subKeyName))
-                {
-                    reg.SetValue(valueName, value);
-                }
-            }
-
-            public static object GetValue(RegistryKey baseKey, string subKeyName, string valueName, object defaultValue)
-            {
-                using (var reg = baseKey.CreateSubKey(subKeyName))
-                {
-                    return reg.GetValue(valueName, defaultValue);
-                }
-            }
-        }
-
         public static class Path
         {
             public static string LogPath

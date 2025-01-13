@@ -60,7 +60,7 @@ namespace Weasel.Setup
                     var dir = arg.Substring(arg.IndexOf(':') + 1);
                     if (dir != null)
                     {
-                        Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "RimeUserDir", dir);
+                        Registry.CurrentUser.SetValue($@"{WEASEL_PROG_REG_KEY}\RimeUserDir", dir);
                     }
                     return;
                 }
@@ -69,31 +69,31 @@ namespace Weasel.Setup
                     switch (arg) // 无需管理员权限的操作
                     {
                         case "/ls": // 简体中文
-                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Language", "chs");
+                            Registry.CurrentUser.SetValue($@"{WEASEL_PROG_REG_KEY}\Language", "chs");
                             return;
                         case "/lt": // 繁体中文
-                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Language", "cht");
+                            Registry.CurrentUser.SetValue($@"{WEASEL_PROG_REG_KEY}\Language", "cht");
                             return;
                         case "/le": // 英语
-                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Language", "eng");
+                            Registry.CurrentUser.SetValue($@"{WEASEL_PROG_REG_KEY}\Language", "eng");
                             return;
                         case "/eu": // 启用更新
-                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_UPDATE_REG_KEY, "CheckForUpdates", 1);
+                            Registry.CurrentUser.SetValue($@"{WEASEL_UPDATE_REG_KEY}\CheckForUpdates", "1");
                             return;
                         case "/du": // 禁用更新
-                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_UPDATE_REG_KEY, "CheckForUpdates", 0);
+                            Registry.CurrentUser.SetValue($@"{WEASEL_UPDATE_REG_KEY}\CheckForUpdates", "0");
                             return;
                         case "/toggleime":
-                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "ToggleImeOnOpenClose", 1);
+                            Registry.CurrentUser.SetValue($@"{WEASEL_PROG_REG_KEY}\ToggleImeOnOpenClose", "yes");
                             return;
                         case "/toggleascii":
-                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "ToggleImeOnOpenClose", 0);
+                            Registry.CurrentUser.SetValue($@"{WEASEL_PROG_REG_KEY}\ToggleImeOnOpenClose", "no");
                             return;
                         case "/testing": // 测试通道
-                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "UpdateChannel", "testing");
+                            Registry.CurrentUser.SetValue($@"{WEASEL_PROG_REG_KEY}\UpdateChannel", "testing");
                             return;
                         case "/release": // 正式通道
-                            Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "UpdateChannel", "release");
+                            Registry.CurrentUser.SetValue($@"{WEASEL_PROG_REG_KEY}\UpdateChannel", "release");
                             return;
                         default: // 需要管理员权限的操作
                             if (!IsRunAsAdmin())
@@ -130,15 +130,24 @@ namespace Weasel.Setup
 
         private static void CustomInstall(bool isInstalling)
         {
-            var isSilentMode = isInstalling;
+            var isSilentMode = false;
             var isInstalled = Setup.IsWeaselInstalled;
 
-            var isHant = Convert.ToBoolean(
-                Utils.Reg.GetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Hant", 0)
-            );
-            var userDir = Convert.ToString(
-                Utils.Reg.GetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "RimeUserDir", string.Empty)
-            );
+            bool isHant = false;
+            string userDir = string.Empty;
+            using (var user = Registry.CurrentUser.OpenSubKey(WEASEL_PROG_REG_KEY))
+            {
+                if (user != null)
+                {
+                    userDir = Convert.ToString(user.GetValue("RimeUserDir"));
+                    var value = user.GetValue("Hant");
+                    if (value != null && value is int)
+                    {
+                        isHant = Convert.ToBoolean(value);
+                        if (isInstalling) isSilentMode = true;
+                    }
+                }
+            }
 
             if (!isSilentMode)
             {
@@ -154,8 +163,11 @@ namespace Weasel.Setup
                     isHant = dialog.IsHant;
                     userDir = dialog.UserDir;
 
-                    Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "RimeUserDir", userDir);
-                    Utils.Reg.SetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Hant", isHant ? 1 : 0);
+                    using (var user = Registry.CurrentUser.CreateSubKey(WEASEL_PROG_REG_KEY))
+                    {
+                        user.SetValue($@"{WEASEL_PROG_REG_KEY}\RimeUserDir", userDir);
+                        user.SetValue($@"{WEASEL_PROG_REG_KEY}\Hant", isHant ? 1 : 0);
+                    }
                 }
                 else
                 {

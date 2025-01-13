@@ -58,8 +58,11 @@ namespace Weasel.Setup
             });
 
             // 登记注册表
-            Utils.Reg.SetValue(Registry.LocalMachine, WEASEL_PROG_REG_KEY, "WeaselRoot", productDir);
-            Utils.Reg.SetValue(Registry.LocalMachine, WEASEL_PROG_REG_KEY, "ServerExecutable", WEASEL_SERVER_EXE);
+            using (var local = Registry.LocalMachine.CreateSubKey(WEASEL_PROG_REG_KEY))
+            {
+                local.SetValue("WeaselRoot", productDir);
+                local.SetValue("ServerExecutable", WEASEL_SERVER_EXE);
+            }
 
             // 启用键盘布局和文本服务
             var psz = isHant ? PSZTITLE_HANT : PSZTITLE_HANS;
@@ -86,7 +89,7 @@ namespace Weasel.Setup
         {
             // 停用键盘布局和文本服务
             var isHant = Convert.ToBoolean(
-                Utils.Reg.GetValue(Registry.CurrentUser, WEASEL_PROG_REG_KEY, "Hant", 0)
+                Registry.CurrentUser.GetValue($@"{WEASEL_PROG_REG_KEY}\Hant")
             );
             var psz = isHant ? PSZTITLE_HANT : PSZTITLE_HANS;
             PInvoke.Input.InstallLayoutOrTip(psz, PInvoke.Input.ILOT.ILOT_UNINSTALL);
@@ -237,8 +240,8 @@ namespace Weasel.Setup
             var value = isHant ? "hant" : "hans";
             Environment.SetEnvironmentVariable("TEXTSERVICE_PROFILE", value);
             var sysarm32Dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Windows), "SysArm32");
-            var regsvr32Path = Directory.Exists(sysarm32Dir) 
-                ? Path.Combine(sysarm32Dir, "regsvr32.exe") 
+            var regsvr32Path = Directory.Exists(sysarm32Dir)
+                ? Path.Combine(sysarm32Dir, "regsvr32.exe")
                 : "regsvr32.exe";
             var args = enable ? $"/s \"{libPath}\"" : $"/s /u \"{libPath}\"";
             var updateInfo = new ProcessStartInfo
