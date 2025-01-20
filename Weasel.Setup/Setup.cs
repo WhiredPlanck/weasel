@@ -11,31 +11,17 @@ namespace Weasel.Setup
 {
     public static class Setup
     {
-        private static readonly Guid CLSID_TEXT_SERVICE;
-        private static readonly Guid GUID_PROFILE;
+        private static readonly Guid CLSID_TEXT_SERVICE = Guid.Parse("{A3F4CDED-B1E9-41EE-9CA6-7B4D0DE6CB0A}");
+        private static readonly Guid GUID_PROFILE = Guid.Parse("{3D02CAB6-2B8E-4781-BA20-1C9267529467}");
 
-        private static readonly string PSZTITLE_HANS;
-        private static readonly string PSZTITLE_HANT;
+        private static readonly string PSZTITLE_HANS = $"0804:{CLSID_TEXT_SERVICE:B}{GUID_PROFILE:B}";
+        private static readonly string PSZTITLE_HANT = $"0404:{CLSID_TEXT_SERVICE:B}{GUID_PROFILE:B}";
 
-        private static readonly string RIME_ROOT_REG_KEY;
-        private static readonly string WEASEL_PROG_REG_KEY;
-        private static readonly string WEASEL_SERVER_EXE;
-        private static readonly string WEASEL_WER_REG_KEY;
-
-        static Setup()
-        {
-            CLSID_TEXT_SERVICE = Guid.Parse("{A3F4CDED-B1E9-41EE-9CA6-7B4D0DE6CB0A}");
-            GUID_PROFILE = Guid.Parse("{3D02CAB6-2B8E-4781-BA20-1C9267529467}");
-
-            PSZTITLE_HANS = $"0804:{CLSID_TEXT_SERVICE:B}{GUID_PROFILE:B}";
-            PSZTITLE_HANT = $"0404:{CLSID_TEXT_SERVICE:B}{GUID_PROFILE:B}";
-
-            RIME_ROOT_REG_KEY = @"SOFTWARE\Rime";
-            WEASEL_PROG_REG_KEY = $@"{RIME_ROOT_REG_KEY}\Weasel";
-            WEASEL_SERVER_EXE = "WeaselServer.exe";
-
-            WEASEL_WER_REG_KEY = $@"SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\{WEASEL_SERVER_EXE}";
-        }
+        private const string RIME_ROOT_REG_KEY = @"SOFTWARE\Rime";
+        private const string WEASEL_PROG_REG_KEY = $@"{RIME_ROOT_REG_KEY}\Weasel";
+        private const string WEASEL_SERVER_EXE = "WeaselServer.exe";
+        private const string WEASEL_WER_REG_KEY = 
+            $@"SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps\{WEASEL_SERVER_EXE}";
 
         public static bool IsWeaselInstalled
         {

@@ -17,15 +17,12 @@ namespace Weasel.Setup
                     var lang = (string)Registry.CurrentUser.GetValue(@"Software\Rime\Weasel\Language", string.Empty);
                     if (!string.IsNullOrEmpty(lang))
                     {
-                        switch (lang)
+                        return lang switch
                         {
-                            case "chs":
-                                return new CultureInfo("zh-Hans");
-                            case "cht":
-                                return new CultureInfo("zh-Hant");
-                            default:
-                                return new CultureInfo("en-US");
-                        }
+                            "chs" => new CultureInfo("zh-Hans"),
+                            "cht" => new CultureInfo("zh-Hant"),
+                            _ => new CultureInfo("en-US"),
+                        };
                     }
                     else
                     {

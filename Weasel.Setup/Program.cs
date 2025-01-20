@@ -48,8 +48,8 @@ namespace Weasel.Setup
             Run(string.Join(" ", args));
         }
 
-        private static readonly string WEASEL_PROG_REG_KEY = @"SOFTWARE\Rime\Weasel";
-        private static readonly string WEASEL_UPDATE_REG_KEY = $@"{WEASEL_PROG_REG_KEY}\Updates";
+        private const string WEASEL_PROG_REG_KEY = @"SOFTWARE\Rime\Weasel";
+        private const string WEASEL_UPDATE_REG_KEY = $@"{WEASEL_PROG_REG_KEY}\Updates";
 
         private static void Run(string arg)
         {
