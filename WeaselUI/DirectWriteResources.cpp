@@ -161,10 +161,9 @@ void weasel::DirectWriteResources::SetDpi(const UINT& dpi) {
 }
 
 static wstring _MatchWordsOutLowerCaseTrim1st(const wstring& wstr,
-                                              const wstring& pat) {
+                                              const std::wregex& pattern) {
   wstring mat = L"";
   std::wsmatch mc;
-  std::wregex pattern(pat, std::wregex::icase);
   wstring::const_iterator iter = wstr.cbegin();
   wstring::const_iterator end = wstr.cend();
   while (regex_search(iter, end, mc, pattern)) {
@@ -183,10 +182,11 @@ static wstring _MatchWordsOutLowerCaseTrim1st(const wstring& wstr,
 void DirectWriteResources::_ParseFontFace(const wstring& fontFaceStr,
                                           DWRITE_FONT_WEIGHT& fontWeight,
                                           DWRITE_FONT_STYLE& fontStyle) {
-  static const wstring patWeight(
+  static const std::wregex patWeight(
       L"(:thin|:extra_light|:ultra_light|:light|:semi_light|:medium|:demi_bold|"
       L":semi_bold|:bold|:extra_bold|:ultra_bold|:black|:heavy|:extra_black|:"
-      L"ultra_black)");
+      L"ultra_black)",
+      std::wregex::icase);
   static const std::map<wstring, DWRITE_FONT_WEIGHT> _mapWeight = {
       {L"thin", DWRITE_FONT_WEIGHT_THIN},
       {L"extra_light", DWRITE_FONT_WEIGHT_EXTRA_LIGHT},
@@ -209,7 +209,8 @@ void DirectWriteResources::_ParseFontFace(const wstring& fontFaceStr,
   fontWeight =
       (it != _mapWeight.end()) ? it->second : DWRITE_FONT_WEIGHT_NORMAL;
 
-  static const wstring patStyle(L"(:italic|:oblique|:normal)");
+  static const std::wregex patStyle(L"(:italic|:oblique|:normal)",
+                                    std::wregex::icase);
   static const std::map<wstring, DWRITE_FONT_STYLE> _mapStyle = {
       {L"italic", DWRITE_FONT_STYLE_ITALIC},
       {L"oblique", DWRITE_FONT_STYLE_OBLIQUE},
