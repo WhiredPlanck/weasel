@@ -183,11 +183,11 @@ static wstring _MatchWordsOutLowerCaseTrim1st(const wstring& wstr,
 void DirectWriteResources::_ParseFontFace(const wstring& fontFaceStr,
                                           DWRITE_FONT_WEIGHT& fontWeight,
                                           DWRITE_FONT_STYLE& fontStyle) {
-  const wstring patWeight(
+  static const wstring patWeight(
       L"(:thin|:extra_light|:ultra_light|:light|:semi_light|:medium|:demi_bold|"
       L":semi_bold|:bold|:extra_bold|:ultra_bold|:black|:heavy|:extra_black|:"
       L"ultra_black)");
-  const std::map<wstring, DWRITE_FONT_WEIGHT> _mapWeight = {
+  static const std::map<wstring, DWRITE_FONT_WEIGHT> _mapWeight = {
       {L"thin", DWRITE_FONT_WEIGHT_THIN},
       {L"extra_light", DWRITE_FONT_WEIGHT_EXTRA_LIGHT},
       {L"ultra_light", DWRITE_FONT_WEIGHT_ULTRA_LIGHT},
@@ -209,8 +209,8 @@ void DirectWriteResources::_ParseFontFace(const wstring& fontFaceStr,
   fontWeight =
       (it != _mapWeight.end()) ? it->second : DWRITE_FONT_WEIGHT_NORMAL;
 
-  const wstring patStyle(L"(:italic|:oblique|:normal)");
-  const std::map<wstring, DWRITE_FONT_STYLE> _mapStyle = {
+  static const wstring patStyle(L"(:italic|:oblique|:normal)");
+  static const std::map<wstring, DWRITE_FONT_STYLE> _mapStyle = {
       {L"italic", DWRITE_FONT_STYLE_ITALIC},
       {L"oblique", DWRITE_FONT_STYLE_OBLIQUE},
       {L"normal", DWRITE_FONT_STYLE_NORMAL},
