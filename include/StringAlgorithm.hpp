@@ -62,6 +62,5 @@ inline bool starts_with(const std::wstring& wstr, const std::wstring& wsub)
 
 inline void to_lower(std::wstring& wstr)
 {
-	std::setlocale(LC_ALL, "");
 	std::transform(wstr.begin(), wstr.end(), wstr.begin(), std::towlower);
 }

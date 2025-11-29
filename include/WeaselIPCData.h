@@ -100,7 +100,7 @@ struct CandidateInfo {
       return true;
     return false;
   }
-  bool notequal(std::vector<Text> txtSrc, std::vector<Text> txtDst) {
+  bool notequal(const std::vector<Text>& txtSrc, const std::vector<Text>& txtDst) const {
     if (txtSrc.size() != txtDst.size())
       return true;
     for (size_t i = 0; i < txtSrc.size(); i++) {

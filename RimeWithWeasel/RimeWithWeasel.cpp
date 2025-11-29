@@ -20,11 +20,11 @@
 typedef enum { COLOR_ABGR = 0, COLOR_ARGB, COLOR_RGBA } ColorFormat;
 
 #ifdef USE_SHARP_COLOR_CODE
-#define HEX_REGEX std::regex("^(0x|#)[0-9a-f]+$", std::regex::icase)
-#define TRIMHEAD_REGEX std::regex("0x|#", std::regex::icase)
+static const std::regex HEX_REGEX("^(0x|#)[0-9a-f]+$", std::regex::icase);
+static const std::regex TRIMHEAD_REGEX("0x|#", std::regex::icase);
 #else
-#define HEX_REGEX std::regex("^0x[0-9a-f]+$", std::regex::icase)
-#define TRIMHEAD_REGEX std::regex("0x", std::regex::icase)
+static const std::regex HEX_REGEX("^0x[0-9a-f]+$", std::regex::icase);
+static const std::regex TRIMHEAD_REGEX("0x", std::regex::icase);
 #endif
 using namespace weasel;
 
@@ -1092,8 +1092,9 @@ void RimeWithWeaselHandler::_UpdateShowNotifications(RimeConfig* config,
 // update ui's style parameters, ui has been check before referenced
 static void _UpdateUIStyle(RimeConfig* config, UI* ui, bool initialize) {
   UIStyle& style(ui->style());
+  static const std::wregex rmspace_regex(L"\\s*(,|:|^|$)\\s*");
   const std::function<void(std::wstring&)> rmspace = [](std::wstring& str) {
-    str = std::regex_replace(str, std::wregex(L"\\s*(,|:|^|$)\\s*"), L"$1");
+    str = std::regex_replace(str, rmspace_regex, L"$1");
   };
   const std::function<void(int&)> _abs = [](int& value) { value = abs(value); };
   // get font faces
@@ -1122,14 +1123,14 @@ static void _UpdateUIStyle(RimeConfig* config, UI* ui, bool initialize) {
                style.inline_preedit);
   _RimeGetBool(config, "style/vertical_auto_reverse", initialize,
                style.vertical_auto_reverse);
-  const std::map<std::string, UIStyle::PreeditType> _preeditMap = {
+  static const std::map<std::string, UIStyle::PreeditType> _preeditMap = {
       {std::string("composition"), UIStyle::COMPOSITION},
       {std::string("preview"), UIStyle::PREVIEW},
       {std::string("preview_all"), UIStyle::PREVIEW_ALL}};
   _RimeParseStringOptWithFallback(config, "style/preedit_type",
                                   style.preedit_type, _preeditMap,
                                   style.preedit_type);
-  const std::map<std::string, UIStyle::AntiAliasMode> _aliasModeMap = {
+  static const std::map<std::string, UIStyle::AntiAliasMode> _aliasModeMap = {
       {std::string("force_dword"), UIStyle::FORCE_DWORD},
       {std::string("cleartype"), UIStyle::CLEARTYPE},
       {std::string("grayscale"), UIStyle::GRAYSCALE},
@@ -1138,13 +1139,13 @@ static void _UpdateUIStyle(RimeConfig* config, UI* ui, bool initialize) {
   _RimeParseStringOptWithFallback(config, "style/antialias_mode",
                                   style.antialias_mode, _aliasModeMap,
                                   style.antialias_mode);
-  const std::map<std::string, UIStyle::HoverType> _hoverTypeMap = {
+  static const std::map<std::string, UIStyle::HoverType> _hoverTypeMap = {
       {std::string("none"), UIStyle::HoverType::NONE},
       {std::string("semi_hilite"), UIStyle::HoverType::SEMI_HILITE},
       {std::string("hilite"), UIStyle::HoverType::HILITE}};
   _RimeParseStringOptWithFallback(config, "style/hover_type", style.hover_type,
                                   _hoverTypeMap, style.hover_type);
-  const std::map<std::string, UIStyle::LayoutAlignType> _alignType = {
+  static const std::map<std::string, UIStyle::LayoutAlignType> _alignType = {
       {std::string("top"), UIStyle::ALIGN_TOP},
       {std::string("center"), UIStyle::ALIGN_CENTER},
       {std::string("bottom"), UIStyle::ALIGN_BOTTOM}};
@@ -1172,7 +1173,7 @@ static void _UpdateUIStyle(RimeConfig* config, UI* ui, bool initialize) {
                style.vertical_text_left_to_right);
   _RimeGetBool(config, "style/vertical_text_with_wrap", false,
                style.vertical_text_with_wrap);
-  const std::map<std::string, bool> _text_orientation = {
+  static const std::map<std::string, bool> _text_orientation = {
       {std::string("horizontal"), false}, {std::string("vertical"), true}};
   bool _text_orientation_bool = false;
   _RimeParseStringOptWithFallback(config, "style/text_orientation",
@@ -1192,7 +1193,7 @@ static void _UpdateUIStyle(RimeConfig* config, UI* ui, bool initialize) {
   _RimeGetIntStr(config, "style/layout/max_height", style.max_height, 0, 0,
                  _abs);
   // layout (alternative to style/horizontal)
-  const std::map<std::string, UIStyle::LayoutType> _layoutMap = {
+  static const std::map<std::string, UIStyle::LayoutType> _layoutMap = {
       {std::string("vertical"), UIStyle::LAYOUT_VERTICAL},
       {std::string("horizontal"), UIStyle::LAYOUT_HORIZONTAL},
       {std::string("vertical_text"), UIStyle::LAYOUT_VERTICAL_TEXT},
@@ -1307,7 +1308,7 @@ static bool _UpdateUIStyleColor(RimeConfig* config,
     prefix += (color.empty()) ? buffer : color;
     // define color format, default abgr if not set
     ColorFormat fmt = COLOR_ABGR;
-    const std::map<std::string, ColorFormat> _colorFmt = {
+    static const std::map<std::string, ColorFormat> _colorFmt = {
         {std::string("argb"), COLOR_ARGB},
         {std::string("rgba"), COLOR_RGBA},
         {std::string("abgr"), COLOR_ABGR}};
